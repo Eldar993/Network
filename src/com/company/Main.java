@@ -11,8 +11,9 @@ class PrimAlgorithmAdjacencyMatrix {
             matrix = new int[vertex][vertex];
         }
 
-        public void addEdge(int source, int destination, int weight) {
+        public void addEdge(int x1,int y1, int x2, int y2) {
             //add edge
+            double weight = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
             matrix[source][destination]=weight;
 
             //add back edge for undirected graph
@@ -100,13 +101,13 @@ class PrimAlgorithmAdjacencyMatrix {
     public static void main(String[] args) {
         int vertices = 6;
         Graph graph = new Graph(vertices);
-        graph.addEdge(0, 1, 4);
-        graph.addEdge(0, 2, 3);
+        graph.addEdge(5,19,55,28);
+       /* graph.addEdge(0, 2, 3);
         graph.addEdge(1, 2, 1);
         graph.addEdge(1, 3, 2);
         graph.addEdge(2, 3, 4);
         graph.addEdge(3, 4, 2);
-        graph.addEdge(4, 5, 6);
+        graph.addEdge(4, 5, 6);*/
         graph.primMST();
     }
 }
