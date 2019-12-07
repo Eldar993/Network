@@ -5,7 +5,7 @@ public class Main {
     public static void main(String[] args) {
     Scanner scanner = new Scanner(System.in);
     int computers = scanner.nextInt();
-    double distance = 0;
+    double distance = 5.34567;
     boolean[][] points = new boolean[][];
     boolean point = true;
     for(int  i = 1;i <= computers;i++){
@@ -19,6 +19,6 @@ public class Main {
     // BFS...
 
 
-        System.out.println(distance);
+        System.out.printf("Minimal length of the network is: %.2f",distance);
     }
 }
