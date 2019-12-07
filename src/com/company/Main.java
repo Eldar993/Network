@@ -6,13 +6,13 @@ public class Main {
     Scanner scanner = new Scanner(System.in);
     int computers = scanner.nextInt();
     double distance = 0;
-    int[][] points = new int[][];
+    boolean[][] points = new boolean[][];
     boolean point = true;
     for(int  i = 1;i <= computers;i++){
         for (int  j = 1;j <=computers) {
             int x = scanner.nextInt();
             int y = scanner.nextInt();
-        int[x][y] = point;
+            points[x][y] = point;
         }
     }
 
