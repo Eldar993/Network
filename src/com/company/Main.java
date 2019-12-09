@@ -1,113 +1,212 @@
 package com.company;
 
-class PrimAlgorithmAdjacencyMatrix {
+import java.util.*;
 
-    static class Graph{
-        int vertices;
-        int matrix[][];
 
-        public Graph(int vertex) {
-            this.vertices = vertex;
-            matrix = new int[vertex][vertex];
+public class Main {
+    static Scanner scanner = new Scanner(System.in);
+    private static Object o = null;
+
+    public static void main(String[] args) {
+
+        List<Point> points;
+        if (args != null && args.length > 0 && "mock".equals(args[0])) {
+            points = mockData();
+        } else {
+            points = readData();
         }
 
-        public void addEdge(int x1,int y1, int x2, int y2) {
-            //add edge
-            double weight = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
-            matrix[source][destination]=weight;
 
-            //add back edge for undirected graph
-            matrix[destination][source] = weight;
+        Map<Point, Set<Edge>> map = generate(points);
+
+        double result;
+
+        if (points.size() == 2) {
+            Edge edge = new Edge(points.get(0), points.get(1));
+            result = edge.getWeight();
+        } else {
+            result = calculation(points, map);
         }
+        System.out.printf("Minimal length of the network is: %.2f", result);
+    }
 
-        //get the vertex with minimum key which is not included in MST
-        int getMinimumVertex(boolean [] mst, int [] key){
-            int minKey = Integer.MAX_VALUE;
-            int vertex = -1;
-            for (int i = 0; i <vertices ; i++) {
-                if(mst[i]==false && minKey>key[i]){
-                    minKey = key[i];
-                    vertex = i;
-                }
-            }
-            return vertex;
-        }
+    private static double calculation(List<Point> points, Map<Point, Set<Edge>> map) {
+        List<Point> spanningTree = new ArrayList<>();
+        spanningTree.add(points.get(0));
+        double minLength = 0.0;
+        System.out.println(spanningTree);
 
-        class ResultSet{
-            // will store the vertex(parent) from which the current vertex will reached
-            int parent;
-            // will store the weight for printing the MST weight
-            int weight;
-        }
+        while (spanningTree.size() < map.size()) {
 
-        public void primMST(){
-            boolean[] mst = new boolean[vertices];
-            ResultSet[] resultSet = new ResultSet[vertices];
-            int [] key = new int[vertices];
-
-            //Initialize all the keys to infinity and
-            //initialize resultSet for all the vertices
-            for (int i = 0; i <vertices ; i++) {
-                key[i] = Integer.MAX_VALUE;
-                resultSet[i] = new ResultSet();
-            }
-
-            //start from the vertex 0
-            key[0] = 0;
-            resultSet[0] = new ResultSet();
-            resultSet[0].parent = -1;
-
-            //create MST
-            for (int i = 0; i <vertices ; i++) {
-
-                //get the vertex with the minimum key
-                int vertex = getMinimumVertex(mst, key);
-
-                //include this vertex in MST
-                mst[vertex] = true;
-
-                //iterate through all the adjacent vertices of above vertex and update the keys
-                for (int j = 0; j <vertices ; j++) {
-                    //check of the edge
-                    if(matrix[vertex][j]>0){
-                        //check if this vertex 'j' already in mst and
-                        //if no then check if key needs an update or not
-                        if(mst[j]==false && matrix[vertex][j]<key[j]){
-                            //update the key
-                            key[j] = matrix[vertex][j];
-                            //update the result set
-                            resultSet[j].parent = vertex;
-                            resultSet[j].weight = key[j];
-                        }
+            Edge min = null;
+            for (Point point : spanningTree) {
+                Set<Edge> edges = map.get(point);
+                for (Edge edge : edges) {
+                    if (min == null || min.getWeight() > edge.getWeight()) {
+                        min = edge;
                     }
                 }
             }
-            //print mst
-            printMST(resultSet);
+            if (min == null) {
+                throw new IllegalStateException("min is null");
+            }
+            minLength += min.getWeight();
+
+            for (Point point : spanningTree) {
+                Set<Edge> edges = map.get(point);
+                edges.remove(new Edge(point, min.getD()));
+            }
+            System.out.println(min);
+            spanningTree.add(min.getD());
+            System.out.println(spanningTree);
         }
 
-        public void printMST(ResultSet[] resultSet){
-            int total_min_weight = 0;
-            System.out.println("Minimum Spanning Tree: ");
-            for (int i = 1; i <vertices ; i++) {
-                System.out.println("Edge: " + i + " - " + resultSet[i].parent +
-                        " key: " + resultSet[i].weight);
-                total_min_weight += resultSet[i].weight;
-            }
-            System.out.println("Total minimum key: " + total_min_weight);
-        }
+        return minLength;
     }
 
-    public static void main(String[] args) {
-        int vertices = 6;
-        Graph graph = new Graph(vertices);
-        graph.addEdge(5,19,55,28);
-       /* graph.addEdge(0, 2, 3);
-        graph.addEdge(1, 2, 1);
-        graph.addEdge(1, 3, 2);
-        graph.addEdge(2, 3, 4);
-        graph.addEdge(3, 4, 2);
-        graph.addEdge(4, 5, 6);*/
-        graph.primMST();
+//    private void removePoint(Map<Point, Set<Edge>> map, Point p) {
+//        map.remove(p);
+//        for (Map.Entry<Point, Set<Edge>> pointSetEntry : map.entrySet()) { //Edge(s, d)
+//
+//        }
+//    }
+
+    private static List<Point> mockData() {
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(5, 19));
+        points.add(new Point(55, 28));
+        points.add(new Point(38, 101));
+        points.add(new Point(28, 62));
+        points.add(new Point(111, 84));
+        points.add(new Point(43, 116));
+
+        return points;
+    }
+
+    private static List<Point> readData() {
+        int computers = scanner.nextInt();
+        List<Point> points = new ArrayList<>();
+
+        for (int i = 1; i <= computers; i++) {
+            int x = scanner.nextInt();
+            int y = scanner.nextInt();
+            points.add(new Point(x, y));
+        }
+
+        return points;
+    }
+
+    private static Map<Point, Set<Edge>> generate(List<Point> points) {
+        Map<Point, Set<Edge>> result = new HashMap<>();
+
+        for (Point s : points) {
+            result.put(s, new TreeSet<>(Comparator.comparingDouble(Edge::getWeight)));
+            for (Point d : points) {
+                if (s.equals(d)) {
+                    continue;
+                }
+                result.compute(s, (point, edges) -> {
+                    edges.add(new Edge(s, d));
+                    return edges;
+                });
+            }
+        }
+
+        return result;
+//        for (int i = 0; i < points.size(); i++) {
+//            for (int j = i + 1; j < points.size(); j++) {
+//
+//            }
+//        }
+    }
+}
+
+class Point {
+    private final int x;
+    private final int y;
+
+    public Point(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Point point = (Point) o;
+        return x == point.x &&
+                y == point.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
+    }
+
+    @Override
+    public String toString() {
+        return "(" +
+                x +
+                "; " + y +
+                ')';
+    }
+}
+
+class Edge {
+    private Point s;
+    private Point d;
+    private double weight;
+
+    public Edge(Point s, Point d) {
+        this.s = s;
+        this.d = d;
+        this.weight = Math.sqrt(
+                Math.pow(s.getX() - d.getX(), 2)
+                        + Math.pow(s.getY() - d.getY(), 2));
+    }
+
+    public Point getS() {
+        return s;
+    }
+
+    public Point getD() {
+        return d;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Edge edge = (Edge) o;
+        return Double.compare(edge.weight, weight) == 0 &&
+                Objects.equals(s, edge.s) &&
+                Objects.equals(d, edge.d);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(s, d, weight);
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "s=" + s +
+                ", d=" + d +
+                ", weight=" + weight +
+                '}';
     }
 }
